@@ -1,51 +1,52 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 
+	"github.com/MederickBernier/GoMon/utils"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/v3/mem"
 )
 
-func main(){
+func main() {
 	// Define a basic route
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request){
-		response := map[string]string{"Status":"OK"}
-		jsonResponse(w,response,http.StatusOK)
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		response := map[string]string{"Status": "OK"}
+		utils.LogRequest(r)
+		utils.JSONResponse(w, response, http.StatusOK)
 	})
 
 	// Define a route to get CPU usage
-	http.HandleFunc("/system/cpu", func(w http.ResponseWriter, r *http.Request){
+	http.HandleFunc("/system/cpu", func(w http.ResponseWriter, r *http.Request) {
 		// get the CPU usage
-		usage, err := cpu.Percent(0,false)
-		if err != nil{
+		usage, err := cpu.Percent(0, false)
+		if err != nil {
 			http.Error(w, "Error getting CPU usage", http.StatusInternalServerError)
 			return
 		}
 
 		// return the json response
 		response := map[string]float64{"cpu_usage": usage[0]}
-		jsonResponse(w,response,http.StatusOK)
+		utils.JSONResponse(w, response, http.StatusOK)
 	})
 
 	// Define a route to get Memory usage
-	http.HandleFunc("/system/memory", func(w http.ResponseWriter, r *http.Request){
+	http.HandleFunc("/system/memory", func(w http.ResponseWriter, r *http.Request) {
 		memoryStats, err := mem.VirtualMemory()
-		if err != nil{
-			http.Error(w,"Error getting Memory usage", http.StatusInternalServerError)
+		if err != nil {
+			http.Error(w, "Error getting Memory usage", http.StatusInternalServerError)
 			return
 		}
 
 		response := map[string]interface{}{
-			"total_memory":memoryStats.Total,
-			"used_memory":memoryStats.Used,
-			"free_memory":memoryStats.Free,
-			"used_percent":memoryStats.UsedPercent,
+			"total_memory": memoryStats.Total,
+			"used_memory":  memoryStats.Used,
+			"free_memory":  memoryStats.Free,
+			"used_percent": memoryStats.UsedPercent,
 		}
-		jsonResponse(w,response,http.StatusOK)
+		utils.JSONResponse(w, response, http.StatusOK)
 	})
 
 	// Start the server
@@ -55,9 +56,3 @@ func main(){
 		log.Fatalf("Error starting server: %v\n", err)
 	}
 }
-
-func jsonResponse(w http.ResponseWriter, data interface{}, status int) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(data)
-}	
