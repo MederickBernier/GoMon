@@ -14,8 +14,7 @@ func main(){
 	// Define a basic route
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request){
 		response := map[string]string{"Status":"OK"}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		jsonResponse(w,response,http.StatusOK)
 	})
 
 	// Define a route to get CPU usage
@@ -29,8 +28,7 @@ func main(){
 
 		// return the json response
 		response := map[string]float64{"cpu_usage": usage[0]}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		jsonResponse(w,response,http.StatusOK)
 	})
 
 	// Define a route to get Memory usage
@@ -47,8 +45,7 @@ func main(){
 			"free_memory":memoryStats.Free,
 			"used_percent":memoryStats.UsedPercent,
 		}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		jsonResponse(w,response,http.StatusOK)
 	})
 
 	// Start the server
@@ -58,3 +55,9 @@ func main(){
 		log.Fatalf("Error starting server: %v\n", err)
 	}
 }
+
+func jsonResponse(w http.ResponseWriter, data interface{}, status int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(data)
+}	
