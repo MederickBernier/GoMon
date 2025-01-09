@@ -5,6 +5,7 @@ import "net/http"
 func RegisterRoutes() *http.ServeMux {
 	mux := http.NewServeMux()
 
+	RegisterBaseRoutes(mux)
 	RegisterCPURoutes(mux)
 	RegisterMemoryRoutes(mux)
 	RegisterDiskRoutes(mux)
@@ -13,6 +14,5 @@ func RegisterRoutes() *http.ServeMux {
 	RegisterAlertsRoutes(mux)
 	RegisterPortsRoutes(mux)
 	RegisterTemperatureRoutes(mux)
-	RegisterTopProcessesRoutes(mux)
 	return mux
 }

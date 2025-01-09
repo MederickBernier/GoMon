@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Monitor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .section h2 {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            color: #555;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .progress-bar {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+            height: 20px;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            text-align: center;
+            line-height: 20px;
+            font-size: 14px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            color: black;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .progress-bar-fill.low {
+            background-color: #4caf50;
+        }
+
+        .progress-bar-fill.warning {
+            background-color: #ff9800;
+        }
+
+        .progress-bar-fill.critical {
+            background-color: #f44336;
+            color: white;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        ul li {
+            margin: 5px 0;
+        }
+
+        .alert-message {
+            font-size: 12px;
+            color: #888;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>System Monitor</h1>
+
+    <div class="section" id="cpu-section">
+        <h2>CPU Usage</h2>
+        <div>Global Usage:</div>
+        <div class="progress-bar">
+            <div class="progress-bar-fill low" id="cpu-usage-bar" style="width: 0%;">0%</div>
+        </div>
+        <div>Per Core:</div>
+        <div id="cpu-cores">
+        </div>
+    </div>
+
+    <div class="section" id="memory-section">
+        <h2>Memory Usage</h2>
+        <div>Total: <span id="memory-total" class="error">Loading...</span></div>
+        <div>Used:</div>
+        <div class="progress-bar">
+            <div class="progress-bar-fill low" id="memory-used-bar" style="width: 0%;">0%</div>
+        </div>
+    </div>
+
+    <div class="section" id="disk-section">
+        <h2>Disk Usage</h2>
+        <div>Total: <span id="disk-total" class="error">Loading...</span></div>
+        <div>Used:</div>
+        <div class="progress-bar">
+            <div class="progress-bar-fill low" id="disk-used-bar" style="width: 0%;">0%</div>
+        </div>
+    </div>
+
+    <div class="section" id="network-section">
+        <h2>Network Usage</h2>
+        <div>
+            <span>Bytes Sent:</span>
+            <span id="network-sent" class="error">Loading...</span>
+        </div>
+        <div>
+            <span>Bytes Received:</span>
+            <span id="network-received" class="error">Loading...</span>
+        </div>
+    </div>
+
+    <div class="section" id="alerts-section">
+        <h2>Alerts</h2>
+        <ul id="alerts-list">
+            <li>No alerts <span class="alert-message">(Everything looks good!)</span></li>
+        </ul>
+    </div>
+
+    <script>
+        function formatBytes(bytes) {
+            if (bytes >= 1e9) return (bytes / 1e9).toFixed(2) + ' GB';
+            if (bytes >= 1e6) return (bytes / 1e6).toFixed(2) + ' MB';
+            if (bytes >= 1e3) return (bytes / 1e3).toFixed(2) + ' KB';
+            return bytes + ' B';
+        }
+
+        function updateProgressBar(id, value) {
+            const bar = document.getElementById(id);
+            if (!bar) return;
+
+            const width = Math.min(Math.max(value, 0), 100);
+            bar.style.width = width + "%";
+            bar.textContent = width.toFixed(2) + "%";
+
+            if (width > 80) bar.className = "progress-bar-fill critical";
+            else if (width > 50) bar.className = "progress-bar-fill warning";
+            else bar.className = "progress-bar-fill low";
+        }
+
+        async function fetchData(endpoint) {
+            try {
+                const response = await fetch(endpoint);
+                if (!response.ok) return null;
+                return await response.json();
+            } catch {
+                return null;
+            }
+        }
+
+        async function updateDashboard() {
+            const cpu = await fetchData('/system/cpu');
+            if (cpu) updateProgressBar("cpu-usage-bar", cpu.cpu_usage);
+
+            const cores = await fetchData('/system/cpu/cores');
+            if (cores) {
+                const coresContainer = document.getElementById('cpu-cores');
+                coresContainer.innerHTML = '';
+                cores.cores.forEach((core, index) => {
+                    const bar = document.createElement('div');
+                    bar.className = 'progress-bar';
+                    bar.innerHTML = `<div class="progress-bar-fill low" id="core-${index}" style="width: ${core}%;">Core ${index}: ${core.toFixed(2)}%</div>`;
+                    coresContainer.appendChild(bar);
+                });
+            }
+
+            const memory = await fetchData('/system/memory');
+            if (memory) {
+                document.getElementById('memory-total').textContent = formatBytes(memory.total_memory || 0);
+                updateProgressBar("memory-used-bar", (memory.used_memory / memory.total_memory) * 100);
+            }
+
+            const disk = await fetchData('/system/disk');
+            if (disk) {
+                document.getElementById('disk-total').textContent = formatBytes(disk.total_space || 0);
+                updateProgressBar("disk-used-bar", (disk.used_space / disk.total_space) * 100);
+            }
+
+            const network = await fetchData('/system/network');
+            if (network) {
+                document.getElementById('network-sent').textContent = formatBytes(network.bytes_sent || 0);
+                document.getElementById('network-received').textContent = formatBytes(network.bytes_received || 0);
+            }
+
+            const alerts = await fetchData('/alerts');
+            const alertsList = document.getElementById('alerts-list');
+            alertsList.innerHTML = '';
+            if (alerts && alerts.alerts.length > 0) {
+                alerts.alerts.forEach(alert => {
+                    const li = document.createElement('li');
+                    li.textContent = alert;
+                    alertsList.appendChild(li);
+                });
+            } else {
+                alertsList.innerHTML = '<li>No alerts <span class="alert-message">(Everything looks good!)</span></li>';
+            }
+        }
+
+        setInterval(updateDashboard, 1000);
+        updateDashboard();
+    </script>
+</body>
+</html>
