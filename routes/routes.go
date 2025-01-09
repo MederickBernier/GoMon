@@ -13,5 +13,6 @@ func RegisterRoutes() *http.ServeMux {
 	RegisterAlertsRoutes(mux)
 	RegisterPortsRoutes(mux)
 	RegisterTemperatureRoutes(mux)
+	RegisterTopProcessesRoutes(mux)
 	return mux
 }
