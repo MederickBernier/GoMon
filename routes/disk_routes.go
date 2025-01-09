@@ -8,7 +8,7 @@ import (
 )
 
 func RegisterDiskRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/system/disk", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/system/disk", utils.MeasureExecutionTime(func(w http.ResponseWriter, r *http.Request) {
 		utils.LogRequest(r)
 
 		data, err := monitor.GetDiskStats()
@@ -17,5 +17,5 @@ func RegisterDiskRoutes(mux *http.ServeMux) {
 			return
 		}
 		utils.JSONResponse(w, data, http.StatusOK)
-	})
+	}))
 }

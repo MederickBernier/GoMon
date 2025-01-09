@@ -8,7 +8,7 @@ import (
 )
 
 func RegisterSystemRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/system/info", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/system/info", utils.MeasureExecutionTime(func(w http.ResponseWriter, r *http.Request) {
 		utils.LogRequest(r)
 		data, err := monitor.GetSystemInfo()
 		if err != nil {
@@ -16,5 +16,5 @@ func RegisterSystemRoutes(mux *http.ServeMux) {
 			return
 		}
 		utils.JSONResponse(w, data, http.StatusOK)
-	})
+	}))
 }

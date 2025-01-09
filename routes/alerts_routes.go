@@ -8,7 +8,7 @@ import (
 )
 
 func RegisterAlertsRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/alerts", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/alerts", utils.MeasureExecutionTime(func(w http.ResponseWriter, r *http.Request) {
 		utils.LogRequest(r)
 
 		alerts, err := monitor.GetAlerts()
@@ -17,5 +17,5 @@ func RegisterAlertsRoutes(mux *http.ServeMux) {
 			return
 		}
 		utils.JSONResponse(w, map[string][]string{"alerts": alerts}, http.StatusOK)
-	})
+	}))
 }

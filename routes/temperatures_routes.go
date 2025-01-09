@@ -8,7 +8,7 @@ import (
 )
 
 func RegisterTemperatureRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/system/temperature", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/system/temperature", utils.MeasureExecutionTime(func(w http.ResponseWriter, r *http.Request) {
 		utils.LogRequest(r)
 
 		data, err := monitor.GetTemperatures()
@@ -20,5 +20,5 @@ func RegisterTemperatureRoutes(mux *http.ServeMux) {
 			return
 		}
 		utils.JSONResponse(w, data, http.StatusOK)
-	})
+	}))
 }

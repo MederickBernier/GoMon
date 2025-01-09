@@ -8,7 +8,7 @@ import (
 )
 
 func RegisterCPURoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/system/cpu", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/system/cpu", utils.MeasureExecutionTime(func(w http.ResponseWriter, r *http.Request) {
 		utils.LogRequest(r)
 		data, err := monitor.GetCPUUsage()
 		if err != nil {
@@ -16,9 +16,9 @@ func RegisterCPURoutes(mux *http.ServeMux) {
 			return
 		}
 		utils.JSONResponse(w, data, http.StatusOK)
-	})
+	}))
 
-	mux.HandleFunc("/system/cpu/cores", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/system/cpu/cores", utils.MeasureExecutionTime(func(w http.ResponseWriter, r *http.Request) {
 		utils.LogRequest(r)
 		data, err := monitor.GetCPUUsagePerCore()
 		if err != nil {
@@ -26,5 +26,5 @@ func RegisterCPURoutes(mux *http.ServeMux) {
 			return
 		}
 		utils.JSONResponse(w, map[string][]float64{"cores": data}, http.StatusOK)
-	})
+	}))
 }

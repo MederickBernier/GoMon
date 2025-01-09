@@ -8,7 +8,7 @@ import (
 )
 
 func RegisterPortsRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/system/ports", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/system/ports", utils.MeasureExecutionTime(func(w http.ResponseWriter, r *http.Request) {
 		utils.LogRequest(r)
 		data, err := monitor.GetListeningPorts()
 		if err != nil {
@@ -16,5 +16,5 @@ func RegisterPortsRoutes(mux *http.ServeMux) {
 			return
 		}
 		utils.JSONResponse(w, data, http.StatusOK)
-	})
+	}))
 }

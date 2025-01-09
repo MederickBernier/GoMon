@@ -8,7 +8,7 @@ import (
 )
 
 func RegisterMemoryRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/system/memory", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/system/memory", utils.MeasureExecutionTime(func(w http.ResponseWriter, r *http.Request) {
 		utils.LogRequest(r)
 		data, err := monitor.GetMemoryStats()
 		if err != nil {
@@ -16,5 +16,5 @@ func RegisterMemoryRoutes(mux *http.ServeMux) {
 			return
 		}
 		utils.JSONResponse(w, data, http.StatusOK)
-	})
+	}))
 }

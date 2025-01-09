@@ -8,7 +8,7 @@ import (
 )
 
 func RegisterNetworkRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/system/network", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/system/network", utils.MeasureExecutionTime(func(w http.ResponseWriter, r *http.Request) {
 		utils.LogRequest(r)
 		data, err := monitor.GetNetworkStats()
 		if err != nil {
@@ -16,5 +16,5 @@ func RegisterNetworkRoutes(mux *http.ServeMux) {
 			return
 		}
 		utils.JSONResponse(w, data, http.StatusOK)
-	})
+	}))
 }
