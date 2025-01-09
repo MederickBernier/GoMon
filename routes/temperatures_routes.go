@@ -13,10 +13,10 @@ func RegisterTemperatureRoutes(mux *http.ServeMux) {
 
 		data, err := monitor.GetTemperatures()
 		if err != nil {
-			utils.JSONResponse(w,map[string]string{
-				"error": "Temperature monitoring failed",
+			utils.JSONResponse(w, map[string]string{
+				"error":   "Temperature monitoring failed",
 				"message": err.Error(),
-			},http.StatusInternalServerError)
+			}, http.StatusInternalServerError)
 			return
 		}
 		utils.JSONResponse(w, data, http.StatusOK)

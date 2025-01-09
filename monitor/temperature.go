@@ -8,6 +8,7 @@ import (
 )
 
 func GetTemperatures() ([]map[string]interface{}, error) {
+
 	if runtime.GOOS != "linux" {
 		return nil, errors.New("temperature monitoring is not supported on this OS")
 	}
@@ -20,7 +21,7 @@ func GetTemperatures() ([]map[string]interface{}, error) {
 	var temps []map[string]interface{}
 	for _, sensor := range sensors {
 		temps = append(temps, map[string]interface{}{
-			"sensor":     sensor.SensorKey,
+			"sensor":      sensor.SensorKey,
 			"temperature": sensor.Temperature,
 		})
 	}

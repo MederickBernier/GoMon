@@ -23,8 +23,8 @@ func HandleError(w http.ResponseWriter, err error, message string, status int) {
 }
 
 func FormatUptime(seconds uint64) string {
-    hours := seconds / 3600
-    minutes := (seconds % 3600) / 60
-    seconds = seconds % 60
-    return fmt.Sprintf("%02dh:%02dm:%02ds", hours, minutes, seconds)
+	hours := seconds / 3600
+	minutes := (seconds % 3600) / 60
+	seconds = seconds % 60
+	return fmt.Sprintf("%02dh:%02dm:%02ds", hours, minutes, seconds)
 }

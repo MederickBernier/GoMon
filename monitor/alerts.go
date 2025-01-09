@@ -13,7 +13,7 @@ func GetAlerts() ([]string, error) {
 
 	cpuUsage, err := cpu.Percent(500, false)
 	if err != nil {
-		return nil, fmt.Errorf("error getting CPU usage: %v", err)
+		return nil, fmt.Errorf("error getting CPU usage : %v", err)
 	}
 	if len(cpuUsage) > 0 && cpuUsage[0] > 90 {
 		alerts = append(alerts, "High CPU usage: > 90 %")

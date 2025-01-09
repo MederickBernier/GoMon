@@ -7,7 +7,7 @@ import (
 	"github.com/MederickBernier/GoMon/utils"
 )
 
-func RegisterCPURoutes(mux *http.ServeMux){
+func RegisterCPURoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/system/cpu", func(w http.ResponseWriter, r *http.Request) {
 		utils.LogRequest(r)
 		data, err := monitor.GetCPUUsage()
