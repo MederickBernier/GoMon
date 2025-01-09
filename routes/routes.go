@@ -7,6 +7,7 @@ func RegisterRoutes() *http.ServeMux{
 
 	RegisterCPURoutes(mux)
 	RegisterMemoryRoutes(mux)
+	RegisterDiskRoutes(mux)
 	
 	return mux
 }
