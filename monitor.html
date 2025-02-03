@@ -152,11 +152,12 @@
     <div class="section" id="disk-section">
         <h2>Disk Usage</h2>
         <div>Total: <span id="disk-total" class="error">Loading...</span></div>
+        <div>Free Space: <span id="disk-free" class="error">Loading...</span></div>
         <div>Used:</div>
         <div class="progress-bar">
             <div class="progress-bar-fill low" id="disk-used-bar" style="width: 0%;">0%</div>
         </div>
-    </div>
+    </div>    
 
     <div class="section" id="network-section">
         <h2>Network Usage</h2>
@@ -255,6 +256,7 @@
             const disk = await fetchData('/system/disk');
             if (disk.total_space !== undefined) {
                 document.getElementById('disk-total').textContent = formatBytes(disk.total_space);
+                document.getElementById('disk-free').textContent = formatBytes(disk.free_space);
                 updateProgressBar("disk-used-bar", (disk.used_space / disk.total_space) * 100);
             }
         
