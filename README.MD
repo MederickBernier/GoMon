@@ -17,38 +17,36 @@ GoMon est un outil de surveillance du système développé en **Go**. Il permet 
 
 ```
 GoMon/
-├── monitor/        # Module contenant les fonctions de récupération des données système
-│   ├── cpu.go      # Récupération de l'utilisation du CPU
-│   ├── memory.go   # Récupération de l'utilisation de la mémoire
-│   ├── disk.go     # Récupération de l'utilisation du disque
-│   ├── network.go  # Récupération des stats réseau
-│   ├── system.go   # Informations système (OS, uptime, architecture...)
-│   ├── ports.go    # Récupération des ports ouverts
-│   ├── alerts.go   # Gestion des alertes système
+├── monitor/                        # Module contenant les fonctions de récupération des données système
+│   ├── cpu.go                      # Récupération de l'utilisation du CPU
+│   ├── memory.go                   # Récupération de l'utilisation de la mémoire
+│   ├── disk.go                     # Récupération de l'utilisation du disque
+│   ├── network.go                  # Récupération des stats réseau
+│   ├── system.go                   # Informations système (OS, uptime, architecture...)
+│   ├── ports.go                    # Récupération des ports ouverts
+│   ├── alerts.go                   # Gestion des alertes système
 │
-├── routes/                # Définition des routes HTTP pour l'API
-│   ├── cpu_routes.go      # Routes pour le CPU
-│   ├── memory_routes.go   # Routes pour la mémoire
-│   ├── disk_routes.go     # Routes pour le disque
-│   ├── network_routes.go  # Routes pour le réseau
-│   ├── system_routes.go   # Routes pour les infos système
-│   ├── ports_routes.go    # Routes pour les ports
-│   ├── alerts_routes.go   # Routes pour les alertes
-│   ├── base_routes.go     # Route pour servir l'interface web
-│   ├── routes.go          # Registre toutes les routes
+├── routes/                         # Définition des routes HTTP pour l'API
+│   ├── cpu_routes.go               # Routes pour le CPU
+│   ├── memory_routes.go            # Routes pour la mémoire
+│   ├── disk_routes.go              # Routes pour le disque
+│   ├── network_routes.go           # Routes pour le réseau
+│   ├── system_routes.go            # Routes pour les infos système
+│   ├── ports_routes.go             # Routes pour les ports
+│   ├── alerts_routes.go            # Routes pour les alertes
+│   ├── base_routes.go              # Route pour servir l'interface web
+│   ├── routes.go                   # Registre toutes les routes
 │
-├── utils/          # Fonctions utilitaires
-│   ├── response.go # Gestion des réponses JSON
-│   ├── logging.go  # Log des requêtes
-│   ├── error.go    # Gestion des erreurs
-│   ├── time.go     # Formatage du temps (uptime)
+├── utils/                          # Fonctions utilitaires
+│   ├── utils.go                    # Fichier de fonctions utilitaires
+│   ├── ExecutionTimeMiddleware.go  # Middleware pour déterminer le temps d'exécution des requêtes
 │
-├── web/            # Fichiers web pour l'interface utilisateur
-│   ├── monitor.html # Interface utilisateur dynamique
+├── monitor.html                    # Interface utilisateur dynamique
+│   
 │
-├── main.go         # Point d'entrée principal du serveur
+├── main.go                         # Point d'entrée principal du serveur
 │
-└── README.md       # Documentation du projet
+└── README.md                       # Documentation du projet
 ```
 
 ## 🚀 Installation et Exécution
