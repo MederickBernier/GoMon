@@ -82,6 +82,38 @@
             color: #888;
             margin-left: 5px;
         }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background-color: #fff;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        .port-known {
+            color: #007BFF;
+            font-weight: bold;
+        }
+        
+        .port-unknown {
+            color: #555;
+        }
+        
     </style>
 </head>
 <body>
@@ -105,6 +137,16 @@
         <div class="progress-bar">
             <div class="progress-bar-fill low" id="memory-used-bar" style="width: 0%;">0%</div>
         </div>
+    </div>
+
+    <div class="section" id="system-section">
+        <h2>System Information</h2>
+        <div>Hostname: <span id="sys-hostname" class="error">Loading...</span></div>
+        <div>OS: <span id="sys-os" class="error">Loading...</span></div>
+        <div>Platform: <span id="sys-platform" class="error">Loading...</span></div>
+        <div>Uptime: <span id="sys-uptime" class="error">Loading...</span></div>
+        <div>Architecture: <span id="sys-arch" class="error">Loading...</span></div>
+        <div>CPU Cores: <span id="sys-cores" class="error">Loading...</span></div>
     </div>
 
     <div class="section" id="disk-section">
@@ -135,6 +177,22 @@
         </ul>
     </div>
 
+    <div class="section" id="ports-section">
+        <h2>Listening Ports</h2>
+        <table id="ports-table">
+            <thead>
+                <tr>
+                    <th>Port</th>
+                    <th>Address</th>
+                    <th>Process</th>
+                </tr>
+            </thead>
+            <tbody id="ports-list">
+                <tr><td colspan="3">No ports found <span class="alert-message">(Waiting for data...)</span></td></tr>
+            </tbody>
+        </table>
+    </div>    
+
     <script>
         function formatBytes(bytes) {
             if (bytes >= 1e9) return (bytes / 1e9).toFixed(2) + ' GB';
@@ -159,19 +217,25 @@
         async function fetchData(endpoint) {
             try {
                 const response = await fetch(endpoint);
-                if (!response.ok) return null;
-                return await response.json();
-            } catch {
-                return null;
+                if (!response.ok) {
+                    console.warn(`⚠️ Warning: Request to ${endpoint} failed with status ${response.status}`);
+                    return {};
+                }
+                const data = await response.json();
+                console.log(`✅ Data from ${endpoint}:`, data);
+                return data;
+            } catch (error) {
+                console.error(`❌ Fetch failed for ${endpoint}:`, error);
+                return {};
             }
         }
 
         async function updateDashboard() {
             const cpu = await fetchData('/system/cpu');
-            if (cpu) updateProgressBar("cpu-usage-bar", cpu.cpu_usage);
-
+            if (cpu.cpu_usage !== undefined) updateProgressBar("cpu-usage-bar", cpu.cpu_usage);
+        
             const cores = await fetchData('/system/cpu/cores');
-            if (cores) {
+            if (cores.cores && Array.isArray(cores.cores)) {
                 const coresContainer = document.getElementById('cpu-cores');
                 coresContainer.innerHTML = '';
                 cores.cores.forEach((core, index) => {
@@ -181,29 +245,29 @@
                     coresContainer.appendChild(bar);
                 });
             }
-
+        
             const memory = await fetchData('/system/memory');
-            if (memory) {
-                document.getElementById('memory-total').textContent = formatBytes(memory.total_memory || 0);
+            if (memory.total_memory !== undefined) {
+                document.getElementById('memory-total').textContent = formatBytes(memory.total_memory);
                 updateProgressBar("memory-used-bar", (memory.used_memory / memory.total_memory) * 100);
             }
-
+        
             const disk = await fetchData('/system/disk');
-            if (disk) {
-                document.getElementById('disk-total').textContent = formatBytes(disk.total_space || 0);
+            if (disk.total_space !== undefined) {
+                document.getElementById('disk-total').textContent = formatBytes(disk.total_space);
                 updateProgressBar("disk-used-bar", (disk.used_space / disk.total_space) * 100);
             }
-
+        
             const network = await fetchData('/system/network');
-            if (network) {
-                document.getElementById('network-sent').textContent = formatBytes(network.bytes_sent || 0);
-                document.getElementById('network-received').textContent = formatBytes(network.bytes_received || 0);
+            if (network.bytes_sent !== undefined && network.bytes_received !== undefined) {
+                document.getElementById('network-sent').textContent = formatBytes(network.bytes_sent);
+                document.getElementById('network-received').textContent = formatBytes(network.bytes_received);
             }
-
+        
             const alerts = await fetchData('/alerts');
             const alertsList = document.getElementById('alerts-list');
             alertsList.innerHTML = '';
-            if (alerts && alerts.alerts.length > 0) {
+            if (alerts.alerts && alerts.alerts.length > 0) {
                 alerts.alerts.forEach(alert => {
                     const li = document.createElement('li');
                     li.textContent = alert;
@@ -212,8 +276,38 @@
             } else {
                 alertsList.innerHTML = '<li>No alerts <span class="alert-message">(Everything looks good!)</span></li>';
             }
-        }
+        
+            const system = await fetchData('/system/info');
+            if (system.hostname) {
+                document.getElementById('sys-hostname').textContent = system.hostname;
+                document.getElementById('sys-os').textContent = system.os;
+                document.getElementById('sys-platform').textContent = system.platform;
+                document.getElementById('sys-uptime').textContent = system.uptime;
+                document.getElementById('sys-arch').textContent = system.arch;
+                document.getElementById('sys-cores').textContent = system.num_cores;
+            }
+        
+            const ports = await fetchData('/system/ports');
+            console.log("Ports Response:", ports);
+            const portsTable = document.getElementById('ports-list');
+            portsTable.innerHTML = '';
 
+            if (ports && Array.isArray(ports) && ports.length > 0) {
+                ports.forEach(port => {
+                    const row = document.createElement('tr');
+                    const portClass = [80, 443, 22, 3306, 5432].includes(port.port) ? "port-known" : "port-unknown";
+
+                    row.innerHTML = `
+                        <td class="${portClass}">${port.port}</td>
+                        <td>${port.address}</td>
+                        <td>${port.process || "Unknown"}</td>
+                    `;
+                    portsTable.appendChild(row);
+                });
+            } else {
+                portsTable.innerHTML = '<tr><td colspan="3">No ports found <span class="alert-message">(Waiting for data...)</span></td></tr>';
+            }
+        }        
         setInterval(updateDashboard, 2500);
         updateDashboard();
     </script>
