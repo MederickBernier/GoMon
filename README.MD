@@ -26,16 +26,16 @@ GoMon/
 │   ├── ports.go    # Récupération des ports ouverts
 │   ├── alerts.go   # Gestion des alertes système
 │
-├── routes/         # Définition des routes HTTP pour l'API
-│   ├── cpu.go      # Routes pour le CPU
-│   ├── memory.go   # Routes pour la mémoire
-│   ├── disk.go     # Routes pour le disque
-│   ├── network.go  # Routes pour le réseau
-│   ├── system.go   # Routes pour les infos système
-│   ├── ports.go    # Routes pour les ports
-│   ├── alerts.go   # Routes pour les alertes
-│   ├── base.go     # Route pour servir l'interface web
-│   ├── register.go # Registre toutes les routes
+├── routes/                # Définition des routes HTTP pour l'API
+│   ├── cpu_routes.go      # Routes pour le CPU
+│   ├── memory_routes.go   # Routes pour la mémoire
+│   ├── disk_routes.go     # Routes pour le disque
+│   ├── network_routes.go  # Routes pour le réseau
+│   ├── system_routes.go   # Routes pour les infos système
+│   ├── ports_routes.go    # Routes pour les ports
+│   ├── alerts_routes.go   # Routes pour les alertes
+│   ├── base_routes.go     # Route pour servir l'interface web
+│   ├── routes.go          # Registre toutes les routes
 │
 ├── utils/          # Fonctions utilitaires
 │   ├── response.go # Gestion des réponses JSON
